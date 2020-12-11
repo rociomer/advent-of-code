@@ -35,6 +35,15 @@
 # FFFBBBFRRR: row 14, column 7, seat ID 119.
 # BBFFBBFRLL: row 102, column 4, seat ID 820.
 # As a sanity check, look through your list of boarding passes. What is the highest seat ID on a boarding pass?
+#
+# --- Part Two ---
+# Ding! The "fasten seat belt" signs have turned on. Time to find your seat.
+# 
+# It's a completely full flight, so your seat should be the only missing boarding pass in your list. However, there's a catch: some of the seats at the very front and back of the plane don't exist on this aircraft, so they'll be missing from your list as well.
+# 
+# Your seat wasn't at the very front or back, though; the seats with IDs +1 and -1 from yours will be in your list.
+# 
+# What is the ID of your seat?
 
 def get_row(boarding_pass):
 
@@ -84,6 +93,25 @@ def get_seat_id(row, column):
     return row * 8 + column
 
 
+def get_missing_seat(max_seat_id, seat_ids):
+
+    # start with all the seat IDs
+    all_seat_ids = list(range(0,max_seat_id + 1))
+    
+    # remove the ones that are already taken, as per the boarding passes
+    for seat_id in seat_ids:
+        all_seat_ids.remove(seat_id)
+
+    # of the leftover seat IDs, the correct assignment must have a +1 and -1 in `seat_ids`
+    for leftover_seat_id in all_seat_ids:
+        seat_id_plus_one = leftover_seat_id + 1
+        seat_id_minus_one = leftover_seat_id - 1
+        if seat_id_plus_one in seat_ids and seat_id_minus_one in seat_ids:
+            return leftover_seat_id  # this is the missing seat
+
+    return None
+
+
 with open("input", "r") as input_data:
     # read entries; each entry is a separate line in input
     boarding_passes = input_data.read().split("\n")[:-1]  # remove the last entry, just a blank due to the last \n
@@ -102,4 +130,7 @@ for seat in boarding_passes:
 # get the largest seat ID
 largest_seat_id = max(seat_ids)
 
-print("Answer:", largest_seat_id)
+# get the missing seat ID
+missing_seat = get_missing_seat(max_seat_id=largest_seat_id, seat_ids=seat_ids)
+
+print("Answer:", missing_seat)
