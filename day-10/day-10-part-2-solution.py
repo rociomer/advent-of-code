@@ -133,7 +133,7 @@
 import math
 from functools import reduce
 
-def binomial(x, y):
+def binomial(x : int, y : int) -> int:
     try:
         return math.factorial(x) // math.factorial(y) // math.factorial(x - y)
     except ValueError:
