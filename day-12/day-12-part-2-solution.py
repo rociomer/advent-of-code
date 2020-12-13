@@ -84,23 +84,16 @@ def navigate(instruction : str, coordinates : Tuple[int, int, int, int]) -> Tupl
         new_position = (coordinates[0], coordinates[1], coordinates[2], coordinates[3] + value)
     elif action == "W":
         new_position = (coordinates[0], coordinates[1], coordinates[2], coordinates[3] - value)
-    elif action == "L":  # counterclockwise rotation
+    else:  # rotate the waypoint
         # rotate the waypoint by `value` degrees around ship using rotation matrix
         # negative `value` --> counterclockwise, positive `value` --> clockwise
         # rotation_matrix = [[math.cos(value), -math.sin(value)],
         #                    [math.sin(value),  math.cos(value)]]
         # note: math.cos() and math.sin() take radians as input
-        value = - value * math.pi / 180  # convert to radians
+        sign = -1 + 2 * int(action == "R")  # sign is (-) if action is "L" and (+) if action is "R"
+        value = sign * value * math.pi / 180  # convert to radians
         x = coordinates[2]  # note: waypoint coordinates are already relative to the ship
         y = coordinates[3]  # note: waypoint coordinates are already relative to the ship
-        new_position = (coordinates[0], coordinates[1], math.cos(value) * x - math.sin(value) * y, math.sin(value) * x + math.cos(value) * y)
-    elif action == "R":  # clockwise rotation
-        # rotate the waypoint by `value` degrees around ship using rotation matrix
-        # negative `value` --> counterclockwise, positive `value` --> clockwise
-        # note: math.cos() and math.sin() take radians as input
-        value = value * math.pi / 180  # convert to radians
-        x = coordinates[2]  # note: waypofloat coordinates are already relative to the ship
-        y = coordinates[3]  # note: waypofloat coordinates are already relative to the ship
         new_position = (coordinates[0], coordinates[1], math.cos(value) * x - math.sin(value) * y, math.sin(value) * x + math.cos(value) * y)
 
     return new_position
