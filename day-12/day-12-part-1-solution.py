@@ -37,7 +37,7 @@ from typing import Tuple
 def navigate(instruction : str, start_position : Tuple[int, int, str]) -> Tuple[int, int, str]:
     """Applies the navigation instruction and returns the ships new position.
     The three indices in the position indicate the following:
-        (E(+)/W(-) position, N(+)/S(-) position, N/E/S/W facing)
+        (N(+)/S(-) position, E(+)/W(-) position, N/E/S/W facing)
     """
     action = instruction[0]
     value = int(instruction[1:])
@@ -116,6 +116,8 @@ def main():
         navigation_instructions = input_data.read().split("\n")[:-1]  # remove the last entry, just a blank due to the last \n
 
     # loop over the navigation instructions until achieving the final position
+    # the first two coordinates are the ship's coordinates, the third is the 
+    # direction the ship is facing
     current_position =(0, 0, "E")
     for instruction in navigation_instructions:
         updated_position = navigate(instruction=instruction, 
