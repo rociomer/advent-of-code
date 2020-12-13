@@ -69,13 +69,14 @@ def navigate(instruction : str, coordinates : Tuple[int, int, int, int]) -> Tupl
     action = instruction[0]
     value = int(instruction[1:])
 
+    # actions which move the ship:
     if action == "F":
         new_position = (coordinates[0] + coordinates[2] * value,
                         coordinates[1] + coordinates[3] * value, 
                         coordinates[2], 
                         coordinates[3])
-
-    if action == "N":
+    # actions which move the waypoint:
+    elif action == "N":
         new_position = (coordinates[0], coordinates[1], coordinates[2] + value, coordinates[3])
     elif action == "S":
         new_position = (coordinates[0], coordinates[1], coordinates[2] - value, coordinates[3])
