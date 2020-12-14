@@ -35,6 +35,52 @@
 # To initialize your ferry's docking program, you need the sum of all values left in memory after the initialization program completes. (The entire 36-bit address space begins initialized to the value 0 at every address.) In the above example, only two values in memory are not zero - 101 (at address 7) and 64 (at address 8) - producing a sum of 165.
 # 
 # Execute the initialization program. What is the sum of all values left in memory after it completes?
+#
+# --- Part Two ---
+# For some reason, the sea port's computer system still can't communicate with your ferry's docking program. It must be using version 2 of the decoder chip!
+# 
+# A version 2 decoder chip doesn't modify the values being written at all. Instead, it acts as a memory address decoder. Immediately before a value is written to memory, each bit in the bitmask modifies the corresponding bit of the destination memory address in the following way:
+# 
+# If the bitmask bit is 0, the corresponding memory address bit is unchanged.
+# If the bitmask bit is 1, the corresponding memory address bit is overwritten with 1.
+# If the bitmask bit is X, the corresponding memory address bit is floating.
+# A floating bit is not connected to anything and instead fluctuates unpredictably. In practice, this means the floating bits will take on all possible values, potentially causing many memory addresses to be written all at once!
+# 
+# For example, consider the following program:
+# 
+# mask = 000000000000000000000000000000X1001X
+# mem[42] = 100
+# mask = 00000000000000000000000000000000X0XX
+# mem[26] = 1
+# When this program goes to write to memory address 42, it first applies the bitmask:
+# 
+# address: 000000000000000000000000000000101010  (decimal 42)
+# mask:    000000000000000000000000000000X1001X
+# result:  000000000000000000000000000000X1101X
+# After applying the mask, four bits are overwritten, three of which are different, and two of which are floating. Floating bits take on every possible combination of values; with two floating bits, four actual memory addresses are written:
+# 
+# 000000000000000000000000000000011010  (decimal 26)
+# 000000000000000000000000000000011011  (decimal 27)
+# 000000000000000000000000000000111010  (decimal 58)
+# 000000000000000000000000000000111011  (decimal 59)
+# Next, the program is about to write to memory address 26 with a different bitmask:
+# 
+# address: 000000000000000000000000000000011010  (decimal 26)
+# mask:    00000000000000000000000000000000X0XX
+# result:  00000000000000000000000000000001X0XX
+# This results in an address with three floating bits, causing writes to eight memory addresses:
+# 
+# 000000000000000000000000000000010000  (decimal 16)
+# 000000000000000000000000000000010001  (decimal 17)
+# 000000000000000000000000000000010010  (decimal 18)
+# 000000000000000000000000000000010011  (decimal 19)
+# 000000000000000000000000000000011000  (decimal 24)
+# 000000000000000000000000000000011001  (decimal 25)
+# 000000000000000000000000000000011010  (decimal 26)
+# 000000000000000000000000000000011011  (decimal 27)
+# The entire 36-bit address space still begins initialized to the value 0 at every address, and you still need the sum of all values left in memory at the end of the program. In this example, the sum is 208.
+# 
+# Execute the initialization program using an emulator for a version 2 decoder chip. What is the sum of all values left in memory after it completes?
 from typing import Tuple
 
 def extract_action(instruction : str) -> Tuple[str, str]:
@@ -58,24 +104,57 @@ def apply_action(system_state : dict, action : str, value : str) -> dict:
     else:  # write to memory
         # first get the value to save, and the address
         memory_address, memory_value = value.split(",")
-
-        # convert the value to binary
-        memory_value_binary = bin(int(memory_value))[2:]
-        memory_value_padded = "0" * (len(system_state["mask"]) - len(memory_value_binary)) + memory_value_binary
+       
+        #convert the address to binary
+        memory_address_binary = bin(int(memory_address))[2:]
+        memory_address_padded = "0" * (len(system_state["mask"]) - len(memory_address_binary)) + memory_address_binary
 
         # then apply the mask to the binary representation
-        memory_value_masked = ""
+        memory_address_masked = ""
         for idx, token in enumerate(system_state["mask"]):
             if token == "1":
-                memory_value_masked += "1"
+                memory_address_masked += "1"
             elif token == "0":
-                memory_value_masked += "0"
+                memory_address_masked += memory_address_padded[idx]
             else:
-                memory_value_masked += memory_value_padded[idx]
+                memory_address_masked += "X"
 
-        system_state[int(memory_address)] = memory_value_masked
+        # get all possible memory addresses
+        possible_memory_addresses = get_possible_memory_addresses(address=memory_address_masked)
+
+        # write the value to memory for each possible memory address
+        for address in possible_memory_addresses:
+            system_state[address] = int(memory_value)
     
     return system_state
+
+
+def get_possible_memory_addresses(address : str) -> list:
+    """Since floating numbers ("X"s) in the memory address can take on values
+    of 0 or 1, this function calculates all possible memory addresses which can
+    me made from an address with floating numbers.
+    """
+    possible_memory_addresses = [address]
+    while "X" in possible_memory_addresses[0]:
+
+        # we will keep track of the updated memory addresses in a new list
+        updated_memory_addresses = []
+
+        for address in possible_memory_addresses:
+            # a note on how replace works:
+            # replace(substring to replace, string to replace it with, first nth occurences)
+            address_1 = address.replace("X", "0", 1)
+            address_2 = address.replace("X", "1", 1)
+
+            # add the updated addresses to `updated_memory_addresses`
+            updated_memory_addresses.append(address_1)
+            updated_memory_addresses.append(address_2)
+
+        # remove the old version of the addresses, which still have the float, by
+        # overwriting with the updated memory addresses
+        possible_memory_addresses = updated_memory_addresses
+    return possible_memory_addresses
+
 
 def main():
     # load data
@@ -99,8 +178,7 @@ def main():
     memory_addresses = [i for i in system_state.keys()]
     memory_addresses.remove("mask")  # remove the "mask" key, as it is not an address
     for memory_address in memory_addresses:
-        binary_value = system_state[memory_address]
-        decimal_value = int("0b" + binary_value, 2)
+        decimal_value = system_state[memory_address]
         memory_sum += decimal_value
 
     print("Answer:", memory_sum)
