@@ -189,7 +189,7 @@ def main():
     # the number of distinct arrangements is the product of all the removal combinations
     n_distinct_arrangements = reduce((lambda x, y: x * y), n_removal_combinations)
 
-    print("Answer:", n_distinct_arrangements)  # 34828517378 too low, 34828517404 too low
+    print("Answer:", n_distinct_arrangements)
 
 if __name__ == "__main__":
     main()

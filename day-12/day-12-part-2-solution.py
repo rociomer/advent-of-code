@@ -117,7 +117,7 @@ def main():
     # calculate the Manhattan distance relative to the original position
     manhattan_distance = int(abs(current_coordinates[0]) + abs(current_coordinates[1]) + 0.5)  # int(x + 0.5) rounds x to the nearest integer
 
-    print("Answer:", manhattan_distance)  # 101244 is too low
+    print("Answer:", manhattan_distance)
 
 
 if __name__ == "__main__":
