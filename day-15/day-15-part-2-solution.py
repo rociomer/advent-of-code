@@ -48,7 +48,6 @@
 # Given 3,2,1, the 30000000th number spoken is 18.
 # Given 3,1,2, the 30000000th number spoken is 362.
 # Given your starting numbers, what will be the 30000000th number spoken?
-from copy import deepcopy
 
 def main():
     # define the starting numbers for the elf game
@@ -57,38 +56,28 @@ def main():
     # convert to a dictionary
     current_indices_dict = {}
     for idx, number in enumerate(starting_numbers):
-        current_indices_dict[number] = idx
-
-    # create a copy, which will store the index for the last time each number 
-    # in the dictionary occured
-    last_indices_dict = deepcopy(current_indices_dict)
+        current_indices_dict[number] = idx + 1  # add 1 to avoid 0-indexing
 
     # play the game
-    next_number_idx = len(starting_numbers)  # this is the index for the "next" number
-    last_number = starting_numbers[-1]       # 9 was the last number
+    next_number_idx = len(starting_numbers)                                 # this is the index for the "next" number
+    last_number = starting_numbers[-1]                                      # 9 was the last number
     last_number_already_spoken = (starting_numbers.count(last_number) > 1)  # False (it was not already spoken)
     while next_number_idx < 30000000:  # we want the 30000000th number spoken
         
-        # if the number has already been spoken, the next number is the difference 
-        # between the new index and the index for the number the last time it was spoken
-        if last_number_already_spoken:
-            # the difference between the new and last occurence indices is equal to the line below
-            next_number = next_number_idx - last_indices_dict[last_number] - 1
-        else:  # otherwise the next number is just 0
-            next_number = 0
+        # the line below is equal to 0 if the `last_number` has not occured before, and
+        # to the difference between the new and last occurence indices if `last_number` did occur before
+        next_number = next_number_idx - current_indices_dict[last_number]
+        current_indices_dict[last_number] = next_number_idx
 
-        # determine if the next number (which will be the "last" number in the 
-        # next round) has already been spoken by the elves
-        last_number_already_spoken = bool(next_number in current_indices_dict)
-
-        # now update the indices of the present "last" number and the "next" number
-        last_indices_dict[last_number] = current_indices_dict[last_number]
-        current_indices_dict[next_number] = next_number_idx
-
-        # go to next number in the list
-        next_number_idx += 1
+        if next_number not in current_indices_dict:
+            # update the indices for the next number (which will be the "last" number in the
+            # next round) only if it has not been spoken before; if it HAS been spoken,
+            # we don't want to touch this yet so as to not overwrite the previous index
+            # needed in order to calculate the index difference above
+            current_indices_dict[next_number] = next_number_idx + 1
 
         # in the next iteration, the `next_number` will become the `last_number`
+        next_number_idx += 1
         last_number = next_number
 
     # the 30000000th number spoken should be the last one in the list
