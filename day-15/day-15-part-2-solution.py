@@ -66,7 +66,7 @@ def main():
     # play the game
     next_number_idx = len(starting_numbers)  # this is the index for the "next" number
     last_number = starting_numbers[-1]       # 9 was the last number
-    last_number_already_spoken = False       # it was not already spoken
+    last_number_already_spoken = (starting_numbers.count(last_number) > 1)  # False (it was not already spoken)
     while next_number_idx < 30000000:  # we want the 30000000th number spoken
         
         # if the number has already been spoken, the next number is the difference 
