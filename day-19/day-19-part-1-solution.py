@@ -7,7 +7,7 @@ def parse_message_rules(rules : list) -> dict:
     """Takes the valid message rules in `rules` and puts them into a dictionary,
     where the keys are the rule numbers and the values are the rules (strings).
     Manipulates the rules a bit to make them easier to work with later e.g. adds
-    "o"s around the digits, removes spaces, and adds parentheses to all rules 
+    "o"s around the digits, removes spaces, and adds parentheses to all rules
     except the two which contain "a" and "b".
     """
     # first convert the input list into a dictionary
@@ -15,7 +15,7 @@ def parse_message_rules(rules : list) -> dict:
     for rule in rules:
         rule_split = rule.split(":")
         rules_dict[rule_split[0]] = rule_split[1][1:]
-    
+
     # put the values in the dictionary into regex strings
     for key, value in rules_dict.items():
         if value == '"a"':
@@ -52,7 +52,7 @@ def get_re(rules_dict : dict) -> dict:
     """
     re_dict = deepcopy(rules_dict)
 
-    # initialize the list of patterns to replace (initially just "a" and "b", 
+    # initialize the list of patterns to replace (initially just "a" and "b",
     # but later this list will expand to include more complex regex)
     patterns_to_replace = {}
     for key, value in rules_dict.items():
@@ -60,18 +60,18 @@ def get_re(rules_dict : dict) -> dict:
             patterns_to_replace[re.compile("o"+key+"o")] = value
         elif "b" in value:
             patterns_to_replace[re.compile("o"+key+"o")] = value
-        else: 
+        else:
             pass
-                
+
     # then go through and replace the values which still contain digits with the
     # regex patterns in `patterns_to_replace`; every iteration we will update
     # the patterns to replace based on the "complete" regex expressions
     previous_patterns_to_replace = {}
     while patterns_to_replace:
-            
+
         # we will keep track of the new patterns to replace next round
         new_patterns_to_replace = {}
-        # as well as the "previous" patterns to replace (so we avoid searching for them once 
+        # as well as the "previous" patterns to replace (so we avoid searching for them once
         # they've been replaced)
         previous_patterns_to_replace.update(patterns_to_replace)
 
@@ -84,7 +84,7 @@ def get_re(rules_dict : dict) -> dict:
 
             re_dict[key] = regex
 
-            # if there are no digits left in the new values (the regex), then 
+            # if there are no digits left in the new values (the regex), then
             # these will become the new patterns to replace in the next cycle
             digits = re.compile("[\d]")
             if not re.search(digits, str(re_dict[key])) and re.compile("o"+key+"o") not in previous_patterns_to_replace.keys():
