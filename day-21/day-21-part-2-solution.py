@@ -90,7 +90,7 @@ def main():
 
     # find the ingredients which do not contain any allergens
     matched_ingredients, matched_allergens, _ = match_allergens(ingredients=ingredients,
-                                                          allergens=allergens)
+                                                                allergens=allergens)
 
     # combine the matched allergens and ingredients to sort them
     combined_list = []
