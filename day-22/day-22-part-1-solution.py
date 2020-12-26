@@ -1,4 +1,4 @@
-# --- Day 21: Allergen Assessment ---
+# --- Day 22: Crab Combat ---
 from typing import Tuple
 
 
