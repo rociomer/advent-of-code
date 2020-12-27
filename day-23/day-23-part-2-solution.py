@@ -1,9 +1,8 @@
 # --- Day 23: Crab Cups ---
-from collections import deque
-# import time
+from typing import Tuple
 
 
-def crab_move(cups : deque) -> deque:
+def crab_move(cups : dict, current_cup : int) -> Tuple[dict, int]:
     """Performs a single crab move. Each move, the crab does the following actions:
     1) The crab picks up the three cups that are immediately clockwise of the
        current cup. They are removed from the circle; cup spacing is adjusted as
@@ -20,71 +19,69 @@ def crab_move(cups : deque) -> deque:
     4) The crab selects a new current cup: the cup which is immediately clockwise
        of the current cup.
 
-    **Note 1: the input `cups` should always be structured such that the
-      "current cup" is positioned at index -1 (i.e. a "reversed" list).
-    **Note 2: deque is preferred over lists in the cases where we need quicker
-      append and pop operations from both the ends of the container; deque provides
-      an O(1) time complexity for append and pop operations as compared to
-      lists, which provide O(n) time complexity (source: GeeksForGeeks).
+    Now, the input `cups` dictionary consists of the cup names as the keys, and
+    the cup which is next in the circle (clockwise) as the values. For example,
+    consider the circle starting from cup (U) and ending with cup {U}:
+      (U) U2 U3 U4 U5 ... {U},
+    then cups[(U)] = U2, cups[U2] = U3, etc.
     """
-    # action 4  (**note: we do it here so we can do pop() immediately below)
-    cups.rotate(1)  # shift the current cup to the end of the queue
-
     # action 1
-    three_cups = [cups.pop() for _ in range(3)]
+    three_cups = [cups[current_cup]]
+    for _ in range(2):
+        three_cups.append(cups[three_cups[-1]])
 
     # action 2
-    destination_cup = cups[0] - 1
+    destination_cup = current_cup - 1
     while destination_cup in three_cups or destination_cup < 1:
-        if destination_cup < 1:
-            destination_cup = 1000000 - three_cups.count(1000000) - three_cups.count(999999) - three_cups.count(999998)
-            break
-        else:
-            destination_cup -= 1
-
-    destination_cup_idx = cups.index(destination_cup)
+        destination_cup -= 1
+        if destination_cup < 0:
+            destination_cup = 1000000  # the largest cup key
 
     # action 3
-    cups.insert(destination_cup_idx, three_cups[0])
-    cups.insert(destination_cup_idx, three_cups[1])
-    cups.insert(destination_cup_idx, three_cups[2])
+    # Using --> (U) X1 X2 X3 [U] U U U* U** U ... {U} below, where {U} connects
+    # back to (U), the current cup, and U* is the destination cup
+    cups[current_cup] = cups[three_cups[-1]]        # (U) now points to [U]
+    cups[three_cups[-1]] = cups[destination_cup]    # X3 now points to U**
+    cups[destination_cup] = three_cups[0]           # U* now points to X1
 
-    return cups
+    # action 4
+    current_cup = cups[current_cup]
+
+    return cups, current_cup
 
 
 def main():
     # load data
     with open("input", "r") as input_data:
-        cup_labels = input_data.read()[:-1]  # skip the \n at the end
-    cup_labels = [int(i) for i in cup_labels]  # convert from list of strings to list of integers
-
-    # the above cup label input is incomplete, it should be 1,000,000 cups with
-    # labels as follows:
+        cup_labels = input_data.read()[:-1]  # skip the newline at the end
+    cup_labels = [int(i) for i in cup_labels]  # list of strs --> list of ints
     cup_labels += [i for i in range(max(cup_labels)+1, 1000001)]
 
-    # for efficiency, we will use a reversed deque (double ended queues) instead of a list
-    cup_labels = deque(reversed(cup_labels))
+    # using deque objects and profiling the code showed that calling deque.index()
+    # was a bottleneck; as such I've rewritten the solution using a dictionary
+    next_cup_dict = {}
+    for idx, cup in enumerate(cup_labels):
+        try:
+            # the value is the "next" cup in the circle, going clockwise
+            next_cup_dict[cup] = cup_labels[idx+1]
+        except IndexError:  # last cup will bug out since `idx+1` is out of rance
+            # looping back around, the last cup should point to the first cup
+            next_cup_dict[cup] = cup_labels[0]
 
-    # start = time.time()
     # the crab does 10,000,000 of his/her "moves" using the above cups
-    n_moves = 10000000
+    n_moves = 10000000           # the number of moves to perform
+    current_cup = cup_labels[0]  # the starting cup
     for _ in range(n_moves):
-        print(_)
-        # if _ % 100000 == 0:
-        #     end = time.time() - start
-        #     print(end)
-        cup_labels = crab_move(cups=cup_labels)
+        next_cup_dict, current_cup = crab_move(cups=next_cup_dict, current_cup=current_cup)
 
     # the answer to the puzzle is the product of the two cup labels
     # immediately clockwise of cup 1
-    cup_1_idx = cup_labels.index(1)
-    adjacent_cup_idx_1 = (cup_1_idx - 1) % len(cup_labels)
-    adjacent_cup_idx_2 = (cup_1_idx - 2) % len(cup_labels)
-    answer = cup_labels[adjacent_cup_idx_1] * cup_labels[adjacent_cup_idx_2]
+    adjacent_cup_1 = next_cup_dict[1]
+    adjacent_cup_2 = next_cup_dict[adjacent_cup_1]
+    answer = adjacent_cup_1 * adjacent_cup_2
 
     print("Answer:", answer)
 
 
 if __name__ == "__main__":
     main()
-

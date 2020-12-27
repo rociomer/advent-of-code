@@ -35,11 +35,9 @@ def crab_move(cups : deque) -> deque:
     # action 2
     destination_cup = cups[0] - 1
     while destination_cup in three_cups or destination_cup < 1:
-        if destination_cup < 1:
+        destination_cup -= 1
+        if destination_cup < 0:
             destination_cup = max(cups)
-            break
-        else:
-            destination_cup -= 1
 
     destination_cup_idx = cups.index(destination_cup)
 
