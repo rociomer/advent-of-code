@@ -3,7 +3,7 @@
 
 def main():
     with open("input", "r") as input_data:
-        # load the input program
+        # load the input orbit data
         local_orbit_map = input_data.read().split("\n")[:-1]
 
     # create a dictionary from the local orbit map
