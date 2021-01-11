@@ -128,7 +128,7 @@ def main():
                                    phase_setting=phase_settings[4])
         output_to_thrusters.append(amp_E_output)
 
-    # the answer to the puzzle is the largegst possible output signal
+    # the answer to the puzzle is the largest possible output signal
     # that can be sent to the thrusters
     answer = max(output_to_thrusters)
 
