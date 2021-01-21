@@ -46,7 +46,7 @@ def run_program(program_memory : list, input_value : int) -> int:
 
             instruction_pointer += 4
         elif two_digit_optcode in [3, 4]:
-            # determine the values for the single integers following the instruction
+            # determine the values for the two integers following the instruction
             new_address = memory[instruction_pointer + 1]
 
             # carry out the optcode instruction

@@ -52,7 +52,7 @@ def run_program(program_memory : list, input_value : int, phase_setting : int) -
 
             instruction_pointer += 4
         elif two_digit_optcode in [3, 4]:
-            # determine the values for the single integers following the instruction
+            # determine the values for the single integer following the instruction
             new_address = memory[instruction_pointer + 1]
 
             # carry out the optcode instruction
@@ -67,7 +67,7 @@ def run_program(program_memory : list, input_value : int, phase_setting : int) -
 
             instruction_pointer += 2
         elif two_digit_optcode in [5, 6]:
-            # determine the values for the single integers following the instruction
+            # determine the values for the two integers following the instruction
             if mode_of_1st_param == 0:
                 int1_address = memory[instruction_pointer + 1]
                 int1 = memory[int1_address]
