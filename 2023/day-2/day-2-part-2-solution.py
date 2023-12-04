@@ -1,5 +1,4 @@
 # --- Day 2: Cube Conundrum ---
-import re
 
 # load the input data
 with open("input", "r") as input_data:
